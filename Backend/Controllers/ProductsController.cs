@@ -34,7 +34,9 @@ namespace PcGarage.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(string id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.Reviews)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
             {
@@ -42,6 +44,44 @@ namespace PcGarage.Api.Controllers
             }
 
             return product;
+        }
+
+        // POST: api/Products/{id}/reviews
+        [HttpPost("{id}/reviews")]
+        public async Task<ActionResult<Review>> CreateReview(string id, Review review)
+        {
+            if (id != review.ProductId)
+            {
+                return BadRequest(new { message = "Product ID mismatch." });
+            }
+
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return NotFound(new { message = "Product not found." });
+            }
+
+            var user = await _context.Users.FindAsync(review.UserId);
+            if (user == null)
+            {
+                return BadRequest(new { message = "User not found." });
+            }
+
+            review.Id = Guid.NewGuid().ToString();
+            review.CreatedAt = DateTime.UtcNow;
+            review.UserName = user.Name;
+
+            _context.Reviews.Add(review);
+            await _context.SaveChangesAsync();
+
+            // Re-calculate average rating and review count
+            var reviews = await _context.Reviews.Where(r => r.ProductId == id).ToListAsync();
+            product.ReviewCount = reviews.Count;
+            product.Rating = reviews.Count > 0 ? (decimal)reviews.Average(r => r.Rating) : 0;
+
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, review);
         }
 
         // POST: api/Products

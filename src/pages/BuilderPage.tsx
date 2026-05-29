@@ -11,6 +11,7 @@ import {
   Info,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { RatingStars } from '@/components/ui/rating-stars';
 
 import { Input } from '@/components/ui/input';
 import { useBuildStore, useCartStore } from '@/store';
@@ -228,9 +229,11 @@ export function BuilderPage() {
                             <div>
                               <p className="text-[10px] text-sky-400 uppercase">{product.brand}</p>
                               <p className="text-xs text-zinc-300">{product.name}</p>
-                              <p className="text-[10px] text-zinc-600 mt-0.5">
-                                {'★'.repeat(Math.round(product.rating))} ({product.reviewCount}) • Stoc: {product.stock}
-                              </p>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <RatingStars rating={product.rating} reviewCount={product.reviewCount} size={10} textSizeClass="text-[10px] text-zinc-500" />
+                                <span className="text-[10px] text-zinc-600">•</span>
+                                <span className="text-[10px] text-zinc-600">Stoc: {product.stock}</span>
+                              </div>
                             </div>
                             <div className="text-right shrink-0">
                               <p className="font-bold text-sm text-zinc-100">{product.price.toLocaleString('ro-RO')} RON</p>

@@ -156,3 +156,4 @@ E:\Facultate\An 3\II Sem II\Proiect\Backend\obj\Debug\net10.0\refint\PcGarage.Ap
 E:\Facultate\An 3\II Sem II\Proiect\Backend\obj\Debug\net10.0\PcGarage.Api.pdb
 E:\Facultate\An 3\II Sem II\Proiect\Backend\obj\Debug\net10.0\PcGarage.Api.genruntimeconfig.cache
 E:\Facultate\An 3\II Sem II\Proiect\Backend\obj\Debug\net10.0\ref\PcGarage.Api.dll
+E:\Facultate\An 3\II Sem II\Proiect\backend\obj\Debug\net10.0\PcGarage.Api.sourcelink.json

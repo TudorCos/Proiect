@@ -45,5 +45,7 @@ namespace PcGarage.Api.Models
             get => SpecsJson == null ? null : System.Text.Json.JsonSerializer.Deserialize<object>(SpecsJson); 
             set => SpecsJson = value == null ? null : System.Text.Json.JsonSerializer.Serialize(value); 
         }
+
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }

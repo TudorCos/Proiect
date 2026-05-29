@@ -81,14 +81,14 @@ export function RegisterPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <Link to="/" className="flex items-center justify-center mb-8">
-          <img src={logoUrl} alt="PC Garage" className="h-24 w-auto" />
+          <img src={logoUrl} alt="MacLaren's PC Store" className="h-24 w-auto" />
         </Link>
 
         {/* Form card */}
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
           <h1 className="text-lg font-semibold text-zinc-100 mb-1">Creează Cont</h1>
           <p className="text-xs text-zinc-500 mb-5">
-            Alătură-te comunității PC Garage.
+            Alătură-te comunității MacLaren's PC Store.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-3">

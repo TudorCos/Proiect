@@ -9,8 +9,8 @@ import { CATEGORY_ICONS } from '@/lib/constants';
 
 export function CartPage() {
   const items = useCartStore((s) => s.items);
-  const totalItems = useCartStore((s) => s.totalItems);
-  const totalPrice = useCartStore((s) => s.totalPrice);
+  const totalItems = useCartStore((s) => s.totalItems());
+  const totalPrice = useCartStore((s) => s.totalPrice());
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
   const clearCart = useCartStore((s) => s.clearCart);
@@ -30,8 +30,8 @@ export function CartPage() {
   const [postalCode, setPostalCode] = useState(user?.address?.postalCode || '');
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'ramburs'>('ramburs');
 
-  const shippingCost = totalPrice() >= 500 ? 0 : 29.99;
-  const grandTotal = totalPrice() + shippingCost;
+  const shippingCost = totalPrice >= 500 ? 0 : 29.99;
+  const grandTotal = totalPrice + shippingCost;
 
   const handlePlaceOrder = async () => {
     if (!user) {
@@ -154,7 +154,7 @@ export function CartPage() {
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-4 w-4 text-sky-400" />
             <h1 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Coș</h1>
-            <span className="text-xs text-zinc-600">{totalItems()} produse</span>
+            <span className="text-xs text-zinc-600">{totalItems} produse</span>
           </div>
           <Button
             variant="ghost"
@@ -185,8 +185,16 @@ export function CartPage() {
               >
                 {/* Product info */}
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded bg-zinc-800 flex items-center justify-center shrink-0">
-                    <span className="text-xl opacity-50">{CATEGORY_ICONS[item.product.category] || '📦'}</span>
+                  <div className="w-12 h-12 rounded bg-zinc-800 flex items-center justify-center shrink-0 overflow-hidden">
+                    {item.product.image ? (
+                      <img
+                        src={item.product.image}
+                        alt={item.product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-xl opacity-50">{CATEGORY_ICONS[item.product.category] || '📦'}</span>
+                    )}
                   </div>
                   <div className="min-w-0">
                     <p className="text-[10px] text-sky-400 uppercase">{item.product.brand}</p>
@@ -307,18 +315,18 @@ export function CartPage() {
 
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-xs">
-                  <span className="text-zinc-500">Subtotal ({totalItems()} produse)</span>
-                  <span className="text-zinc-200">{totalPrice().toLocaleString('ro-RO')} RON</span>
+                  <span className="text-zinc-500">Subtotal ({totalItems} produse)</span>
+                  <span className="text-zinc-200">{totalPrice.toLocaleString('ro-RO')} RON</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-zinc-500">Livrare</span>
-                  <span className={totalPrice() >= 500 ? 'text-emerald-500' : 'text-zinc-200'}>
-                    {totalPrice() >= 500 ? 'Gratuită' : '29,99 RON'}
+                  <span className={totalPrice >= 500 ? 'text-emerald-500' : 'text-zinc-200'}>
+                    {totalPrice >= 500 ? 'Gratuită' : '29,99 RON'}
                   </span>
                 </div>
-                {totalPrice() < 500 && (
+                {totalPrice < 500 && (
                   <p className="text-[10px] text-sky-400">
-                    Mai adaugă {(500 - totalPrice()).toLocaleString('ro-RO')} RON pentru livrare gratuită
+                    Mai adaugă {(500 - totalPrice).toLocaleString('ro-RO')} RON pentru livrare gratuită
                   </p>
                 )}
               </div>

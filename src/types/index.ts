@@ -1,5 +1,5 @@
 // ============================================================
-// PC Garage – Core TypeScript Interfaces
+// MacLaren's PC Store – Core TypeScript Interfaces
 // ============================================================
 
 // ---- Categorii Produse ----
@@ -116,6 +116,20 @@ export type ProductSpecs =
   | { category: 'Peripherals'; specs: Record<string, unknown> };
 
 // ============================================================
+// Review (recenzii produse)
+// ============================================================
+
+export interface Review {
+  id: string;
+  productId: string;
+  userId: string;
+  userName: string;
+  rating: number;          // 1-5
+  comment: string;
+  createdAt: string;       // ISO date string
+}
+
+// ============================================================
 // Product (entitatea principală)
 // ============================================================
 
@@ -133,6 +147,7 @@ export interface Product {
   reviewCount: number;
   featured: boolean;
   createdAt: string;       // ISO date string
+  reviews?: Review[];
 }
 
 // ============================================================

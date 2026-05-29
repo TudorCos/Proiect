@@ -15,10 +15,24 @@ namespace PcGarage.Api.Data
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Build> Builds { get; set; }
         public DbSet<BuildStorage> BuildStorages { get; set; }
+        public DbSet<Review> Reviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Configure Review relationships
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.Product)
+                .WithMany(p => p.Reviews)
+                .HasForeignKey(r => r.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Configure User -> Address (Owned Entity)
             modelBuilder.Entity<User>().OwnsOne(u => u.Address);

@@ -27,7 +27,14 @@ export function HomePage() {
     fetchProducts();
   }, []);
 
-  const featuredProducts = products.filter((p) => p.featured);
+  const popularProducts = [...products]
+    .sort((a, b) => {
+      if (b.rating !== a.rating) {
+        return b.rating - a.rating;
+      }
+      return b.reviewCount - a.reviewCount;
+    })
+    .slice(0, 5);
   const mainCategories: ProductCategory[] = ['CPU', 'GPU', 'RAM', 'Motherboard', 'PSU', 'Storage', 'Case', 'Cooling'];
 
   if (loading) {
@@ -114,7 +121,7 @@ export function HomePage() {
             <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Produse populare</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-            {featuredProducts.map((product) => (
+            {popularProducts.map((product) => (
               <div key={product.id}>
                 <ProductCard product={product} hideAddButton={true} />
               </div>

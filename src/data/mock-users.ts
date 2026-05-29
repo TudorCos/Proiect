@@ -3,8 +3,8 @@ import type { User, Order } from '@/types';
 export const mockUsers: User[] = [
   {
     id: 'user-001',
-    email: 'admin@pcgarage.ro',
-    name: 'Admin PCGarage',
+    email: 'admin@maclarens.ro',
+    name: "Admin MacLaren's PC Store",
     role: 'admin',
     phone: '0721000000',
     address: {

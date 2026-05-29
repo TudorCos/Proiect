@@ -20,8 +20,8 @@ const categories: { label: string; value: ProductCategory }[] = [
 ];
 
 export function Navbar() {
-  const totalItems = useCartStore((s) => s.totalItems);
-  const totalPrice = useCartStore((s) => s.totalPrice);
+  const totalItems = useCartStore((s) => s.totalItems());
+  const totalPrice = useCartStore((s) => s.totalPrice());
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
@@ -44,8 +44,11 @@ export function Navbar() {
       <div className="bg-zinc-900 border-b border-zinc-800">
         <div className="mx-auto max-w-[1400px] px-4 h-20 flex items-center gap-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center shrink-0 mr-2">
-            <img src={logoUrl} alt="PC Garage" className="h-16 w-auto" />
+          <Link to="/" className="flex items-center shrink-0 mr-2 gap-2.5">
+            <img src={logoUrl} alt="MacLaren's PC Store" className="h-16 w-auto" />
+            <span className="font-bold text-lg text-zinc-100 hidden sm:inline-block tracking-tight">
+              MacLaren's <span className="text-rose-500">PC Store</span>
+            </span>
           </Link>
 
           {/* Search */}
@@ -115,14 +118,14 @@ export function Navbar() {
               >
                 <div className="relative">
                   <ShoppingCart className="h-4 w-4" />
-                  {totalItems() > 0 && (
+                  {totalItems > 0 && (
                     <Badge className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full p-0 text-[9px] bg-rose-500 text-white border-0">
-                      {totalItems()}
+                      {totalItems}
                     </Badge>
                   )}
                 </div>
                 <span className="hidden lg:inline">
-                  {totalItems() > 0 ? `${totalPrice().toLocaleString('ro-RO')} RON` : 'Coș'}
+                  {totalItems > 0 ? `${totalPrice.toLocaleString('ro-RO')} RON` : 'Coș'}
                 </span>
               </Button>
             </Link>

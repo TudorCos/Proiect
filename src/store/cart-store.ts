@@ -4,6 +4,8 @@ import type { CartItem, Product } from '@/types';
 
 interface CartState {
   items: CartItem[];
+  showToast: boolean;
+  setShowToast: (show: boolean) => void;
   
   // Computed
   totalItems: () => number;
@@ -20,6 +22,8 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      showToast: false,
+      setShowToast: (show: boolean) => set({ showToast: show }),
 
   totalItems: () => {
     return get().items.reduce((sum, item) => sum + item.quantity, 0);
@@ -38,18 +42,20 @@ export const useCartStore = create<CartState>()(
         (item) => item.product.id === product.id
       );
 
+      let newItems;
       if (existingItem) {
-        return {
-          items: state.items.map((item) =>
-            item.product.id === product.id
-              ? { ...item, quantity: item.quantity + quantity }
-              : item
-          ),
-        };
+        newItems = state.items.map((item) =>
+          item.product.id === product.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+      } else {
+        newItems = [...state.items, { product, quantity }];
       }
 
       return {
-        items: [...state.items, { product, quantity }],
+        items: newItems,
+        showToast: true,
       };
     });
   },
@@ -79,6 +85,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'cart-storage',
+      partialize: (state) => ({ items: state.items }),
     }
   )
 );

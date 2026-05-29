@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import type { Product } from '@/types';
 import { CATEGORY_ICONS } from '@/lib/constants';
 
+import { RatingStars } from '@/components/ui/rating-stars';
+
 interface ProductCardProps {
   product: Product;
   isAdded?: boolean;
@@ -17,10 +19,18 @@ export function ProductCard({ product, isAdded = false, onAddToCart, hideAddButt
   return (
     <Card className="group bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-all overflow-hidden flex flex-col h-full">
       <Link to={`/products/${product.id}`}>
-        <div className="relative bg-zinc-800/50 p-6 flex items-center justify-center h-36">
-          <span className="text-4xl opacity-30 group-hover:opacity-50 transition-opacity">
-            {CATEGORY_ICONS[product.category] || '📦'}
-          </span>
+        <div className="relative bg-zinc-800/50 flex items-center justify-center h-36 overflow-hidden">
+          {product.image ? (
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <span className="text-4xl opacity-30 group-hover:opacity-50 transition-opacity">
+              {CATEGORY_ICONS[product.category] || '📦'}
+            </span>
+          )}
           {product.stock <= 5 && product.stock > 0 && (
             <Badge className="absolute top-2 right-2 bg-zinc-700 text-zinc-300 border-0 text-[10px]">
               Stoc: {product.stock}
@@ -40,9 +50,8 @@ export function ProductCard({ product, isAdded = false, onAddToCart, hideAddButt
             {product.name}
           </p>
         </Link>
-        <div className="flex items-center gap-1 mt-1">
-          <span className="text-sky-400 text-[10px]">{'★'.repeat(Math.round(product.rating))}</span>
-          <span className="text-[10px] text-zinc-600">({product.reviewCount})</span>
+        <div className="mt-1.5">
+          <RatingStars rating={product.rating} reviewCount={product.reviewCount} size={12} textSizeClass="text-[10px] text-zinc-500" />
         </div>
         <div className="mt-auto pt-2 flex items-end justify-between">
           <div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Package, Plus, Pencil, Trash2, X, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { RatingStars } from '@/components/ui/rating-stars';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +23,7 @@ export function AdminProductsPage() {
   const [formPrice, setFormPrice] = useState('');
   const [formStock, setFormStock] = useState('');
   const [formDescription, setFormDescription] = useState('');
+  const [formImage, setFormImage] = useState('');
 
   const fetchProducts = async () => {
     try {
@@ -50,6 +52,7 @@ export function AdminProductsPage() {
   const openCreate = () => {
     setFormName(''); setFormBrand(''); setFormCategory('CPU');
     setFormPrice(''); setFormStock(''); setFormDescription('');
+    setFormImage('');
     setEditingProduct(null); setIsCreating(true);
   };
 
@@ -57,6 +60,7 @@ export function AdminProductsPage() {
     setFormName(product.name); setFormBrand(product.brand);
     setFormCategory(product.category); setFormPrice(product.price.toString());
     setFormStock(product.stock.toString()); setFormDescription(product.description);
+    setFormImage(product.image);
     setEditingProduct(product); setIsCreating(true);
   };
 
@@ -70,7 +74,7 @@ export function AdminProductsPage() {
       price: Number(formPrice),
       stock: Number(formStock),
       description: formDescription,
-      image: editingProduct?.image || '',
+      image: formImage || '',
       specs: editingProduct?.specs || {},
       rating: editingProduct?.rating || 0,
       reviewCount: editingProduct?.reviewCount || 0,
@@ -183,6 +187,10 @@ export function AdminProductsPage() {
               <Label className="text-[10px] text-zinc-500 uppercase">Descriere</Label>
               <Input value={formDescription} onChange={(e) => setFormDescription(e.target.value)} className="mt-1 h-8 bg-zinc-800 border-zinc-700 text-xs" placeholder="Descriere produs" />
             </div>
+            <div>
+              <Label className="text-[10px] text-zinc-500 uppercase">Imagine (cale/URL)</Label>
+              <Input value={formImage} onChange={(e) => setFormImage(e.target.value)} className="mt-1 h-8 bg-zinc-800 border-zinc-700 text-xs" placeholder="/images/products/..." />
+            </div>
           </div>
           <div className="flex gap-2 mt-4">
             <Button size="sm" className="bg-rose-500 hover:bg-rose-600 text-white h-8 text-xs font-semibold" onClick={handleSave}>
@@ -236,9 +244,18 @@ export function AdminProductsPage() {
           {filtered.map((product) => (
             <div key={product.id} className="grid md:grid-cols-[60px_1fr_100px_100px_80px_80px_80px] gap-2 px-4 py-2.5 items-center hover:bg-zinc-800/20 transition-colors">
               <span className="text-[10px] text-zinc-600 font-mono truncate">{product.id.slice(0, 8)}</span>
-              <div>
-                <p className="text-[10px] text-sky-400 uppercase">{product.brand}</p>
-                <p className="text-xs text-zinc-200 truncate">{product.name}</p>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center shrink-0 overflow-hidden">
+                  {product.image ? (
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-sm opacity-50">📦</span>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-sky-400 uppercase">{product.brand}</p>
+                  <p className="text-xs text-zinc-200 truncate">{product.name}</p>
+                </div>
               </div>
               <Badge className="w-fit text-[10px] bg-zinc-800 text-zinc-400 border-zinc-700">
                 {product.category}
@@ -247,8 +264,8 @@ export function AdminProductsPage() {
               <span className={`text-xs text-right font-medium ${product.stock <= 5 ? 'text-red-400' : product.stock <= 15 ? 'text-sky-400' : 'text-zinc-300'}`}>
                 {product.stock}
               </span>
-              <div className="text-center text-[10px] text-sky-400">
-                {'★'.repeat(Math.round(product.rating))} <span className="text-zinc-600">({product.reviewCount})</span>
+              <div className="flex justify-center">
+                <RatingStars rating={product.rating} reviewCount={product.reviewCount} size={10} showScoreText={false} />
               </div>
               <div className="flex justify-center gap-1">
                 <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-zinc-500 hover:text-sky-400 hover:bg-zinc-800" onClick={() => openEdit(product)}>

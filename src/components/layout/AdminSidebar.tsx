@@ -29,7 +29,7 @@ export function AdminSidebar() {
     <aside className="flex h-screen w-56 flex-col bg-zinc-950 border-r border-zinc-800">
       {/* Header */}
       <div className="h-20 flex items-center px-4 border-b border-zinc-800">
-        <img src={logoUrl} alt="PC Garage" className="h-14 w-auto" />
+        <img src={logoUrl} alt="MacLaren's PC Store" className="h-14 w-auto" />
         <span className="ml-1 text-[9px] font-bold uppercase tracking-widest text-rose-400 bg-rose-400/10 px-1.5 py-0.5 rounded">
           Admin
         </span>

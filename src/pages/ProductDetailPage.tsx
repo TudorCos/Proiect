@@ -1,36 +1,112 @@
 import { useParams, Link } from 'react-router-dom';
-import { ShoppingCart, ArrowLeft, Star, Package, CheckCircle } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Star, Package, CheckCircle, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCartStore } from '@/store';
+import { useCartStore, useAuthStore } from '@/store';
 import { useState, useEffect } from 'react';
 import { CATEGORY_ICONS } from '@/lib/constants';
 import type { Product } from '@/types';
+import { RatingStars } from '@/components/ui/rating-stars';
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const addItem = useCartStore((s) => s.addItem);
+  const { user, isAuthenticated } = useAuthStore();
+
   const [added, setAdded] = useState(false);
   const [qty, setQty] = useState(1);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const res = await fetch(`http://localhost:5216/api/Products/${id}`);
-        if (res.ok) {
-          setProduct(await res.json());
-        }
-      } catch (err) {
-        console.error('Error fetching product:', err);
-      } finally {
-        setLoading(false);
+  // Review form state
+  const [comment, setComment] = useState('');
+  const [rating, setRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+  const [reviewSuccess, setReviewSuccess] = useState('');
+
+  const fetchProduct = async () => {
+    try {
+      const res = await fetch(`http://localhost:5216/api/Products/${id}`);
+      if (res.ok) {
+        setProduct(await res.json());
       }
-    };
+    } catch (err) {
+      console.error('Error fetching product:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     if (id) {
       fetchProduct();
     }
   }, [id]);
+
+  const handleAdd = () => {
+    if (product) {
+      addItem(product, qty);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    }
+  };
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!comment.trim()) {
+      setReviewError('Comentariul nu poate fi gol.');
+      return;
+    }
+    if (!user) {
+      setReviewError('Trebuie să fii conectat pentru a lăsa o recenzie.');
+      return;
+    }
+
+    setSubmittingReview(true);
+    setReviewError('');
+    setReviewSuccess('');
+
+    try {
+      const res = await fetch(`http://localhost:5216/api/Products/${id}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: id,
+          userId: user.id,
+          userName: user.name,
+          rating,
+          comment,
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        if (res.status === 400 && errData.message === "User not found.") {
+          useAuthStore.getState().logout();
+          throw new Error("Contul dumneavoastră nu a fost găsit. Sesiunea a fost închisă, vă rugăm să vă conectați din nou.");
+        }
+        throw new Error(errData.message || 'Eroare la adăugarea recenziei.');
+      }
+
+      setReviewSuccess('Recenzia a fost adăugată cu succes!');
+      setComment('');
+      setRating(5);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setReviewSuccess(''), 3000);
+
+      // Re-fetch product to show new review & update rating
+      await fetchProduct();
+    } catch (err: any) {
+      console.error('Submit review error:', err);
+      setReviewError(err.message || 'Nu s-a putut trimite recenzia. Asigură-te că API-ul rulează.');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -59,12 +135,6 @@ export function ProductDetailPage() {
   const specs = product.specs as Record<string, unknown> || {};
   const specEntries = Object.entries(specs).filter(([, v]) => v !== undefined && v !== null);
 
-  const handleAdd = () => {
-    addItem(product, qty);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
-  };
-
   return (
     <div className="bg-zinc-950 min-h-screen">
       <div className="mx-auto max-w-[1400px] px-4 py-5">
@@ -82,8 +152,16 @@ export function ProductDetailPage() {
 
         <div className="grid md:grid-cols-[400px_1fr] lg:grid-cols-[450px_1fr] gap-6">
           {/* Image area */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-8 flex items-center justify-center min-h-[300px] relative">
-            <span className="text-8xl opacity-20">{CATEGORY_ICONS[product.category] || '📦'}</span>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex items-center justify-center min-h-[300px] relative">
+            {product.image ? (
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-full object-cover max-h-[450px]"
+              />
+            ) : (
+              <span className="text-8xl opacity-20">{CATEGORY_ICONS[product.category] || '📦'}</span>
+            )}
           </div>
 
           {/* Product info */}
@@ -99,17 +177,8 @@ export function ProductDetailPage() {
             <h1 className="text-xl font-bold text-zinc-100 mb-2">{product.name}</h1>
 
             {/* Rating */}
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex items-center gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`h-3.5 w-3.5 ${i < Math.round(product.rating) ? 'text-sky-400 fill-sky-400' : 'text-zinc-700'}`}
-                  />
-                ))}
-              </div>
-              <span className="text-xs text-zinc-400">{product.rating}/5</span>
-              <span className="text-[10px] text-zinc-600">({product.reviewCount} recenzii)</span>
+            <div className="mb-4">
+              <RatingStars rating={product.rating} reviewCount={product.reviewCount} size={15} textSizeClass="text-xs text-zinc-400" />
             </div>
 
             {/* Description */}
@@ -177,6 +246,131 @@ export function ProductDetailPage() {
                   <div className="px-4 py-3 text-xs text-zinc-500">Nu există specificații detaliate.</div>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-12 border-t border-zinc-800 pt-8">
+          <h2 className="text-lg font-bold text-zinc-100 mb-6 flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-sky-400" />
+            Recenzii și comentarii ({product.reviews?.length || 0})
+          </h2>
+
+          <div className="grid md:grid-cols-[1fr_350px] gap-8 items-start">
+            {/* Reviews list */}
+            <div className="space-y-4">
+              {product.reviews && product.reviews.length > 0 ? (
+                [...product.reviews]
+                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                  .map((rev) => (
+                    <div key={rev.id} className="bg-zinc-900 border border-zinc-800/85 rounded-lg p-5 transition-all hover:border-zinc-800">
+                      <div className="flex items-center justify-between gap-4 mb-2">
+                        <div>
+                          <span className="text-sm font-semibold text-zinc-200">{rev.userName}</span>
+                          <div className="flex items-center gap-0.5 mt-0.5">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-3 w-3 ${
+                                  i < rev.rating ? 'text-sky-400 fill-sky-400' : 'text-zinc-700'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-zinc-500">
+                          {new Date(rev.createdAt).toLocaleDateString('ro-RO', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}
+                        </span>
+                      </div>
+                      <p className="text-xs text-zinc-400 leading-relaxed whitespace-pre-wrap">{rev.comment}</p>
+                    </div>
+                  ))
+              ) : (
+                <div className="bg-zinc-900/30 border border-dashed border-zinc-800 rounded-lg p-8 text-center">
+                  <MessageSquare className="h-8 w-8 text-zinc-700 mx-auto mb-2" />
+                  <p className="text-sm text-zinc-500">Nu există nicio recenzie pentru acest produs.</p>
+                  <p className="text-xs text-zinc-600 mt-1">Fii primul care își spune părerea!</p>
+                </div>
+              )}
+            </div>
+
+            {/* Add review form */}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5 sticky top-5">
+              <h3 className="text-sm font-semibold text-zinc-200 mb-4">Adaugă recenzia ta</h3>
+              
+              {isAuthenticated && user ? (
+                <form onSubmit={handleReviewSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-xs text-zinc-500 mb-1.5">Rating</label>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          className="p-1 -ml-1 transition-transform hover:scale-110 focus:outline-none"
+                          onClick={() => setRating(star)}
+                          onMouseEnter={() => setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(0)}
+                        >
+                          <Star
+                            className={`h-6 w-6 transition-colors ${
+                              star <= (hoverRating || rating)
+                                ? 'text-sky-400 fill-sky-400'
+                                : 'text-zinc-700'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="comment" className="block text-xs text-zinc-500 mb-1.5">Comentariu</label>
+                    <textarea
+                      id="comment"
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      placeholder="Scrie experiența ta cu acest produs..."
+                      required
+                      className="w-full min-h-[100px] bg-zinc-800/50 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500/20 transition-all resize-y"
+                    />
+                  </div>
+
+                  {reviewError && (
+                    <div className="text-[11px] text-red-400 bg-red-400/5 border border-red-500/10 rounded px-3 py-2">
+                      {reviewError}
+                    </div>
+                  )}
+
+                  {reviewSuccess && (
+                    <div className="text-[11px] text-emerald-400 bg-emerald-400/5 border border-emerald-500/10 rounded px-3 py-2">
+                      {reviewSuccess}
+                    </div>
+                  )}
+
+                  <Button
+                    type="submit"
+                    disabled={submittingReview}
+                    className="w-full bg-rose-500 hover:bg-rose-600 text-white text-xs h-9 font-semibold"
+                  >
+                    {submittingReview ? 'Se trimite...' : 'Trimite recenzia'}
+                  </Button>
+                </form>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-xs text-zinc-500 mb-4">Trebuie să fii conectat pentru a lăsa o recenzie.</p>
+                  <Link to="/login" state={{ from: { pathname: `/products/${id}` } }}>
+                    <Button size="sm" className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 text-xs w-full">
+                      Conectează-te
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -77,9 +77,18 @@ namespace PcGarage.Api.Controllers
             var user = await _context.Users.FindAsync(order.UserId);
             if (user != null)
             {
-                // We don't await this so it sends in the background (or we await it if we want to ensure it is sent)
-                // For simplicity, we await it, but typically this would be a fire-and-forget or message queue
-                await _emailService.SendOrderConfirmationEmailAsync(user.Email, user.Name, order);
+                // Send email in the background to prevent SMTP network issues from blocking checkout
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _emailService.SendOrderConfirmationEmailAsync(user.Email, user.Name, order);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[EMAIL BACKGROUND ERROR] Failed to send email: {ex.Message}");
+                    }
+                });
             }
 
             return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);

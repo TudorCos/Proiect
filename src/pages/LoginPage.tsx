@@ -52,7 +52,7 @@ export function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <Link to="/" className="flex items-center justify-center mb-8">
-          <img src={logoUrl} alt="PC Garage" className="h-24 w-auto" />
+          <img src={logoUrl} alt="MacLaren's PC Store" className="h-24 w-auto" />
         </Link>
 
         {/* Form card */}

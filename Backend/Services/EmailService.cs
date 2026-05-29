@@ -37,7 +37,7 @@ namespace PcGarage.Api.Services
                 </div>
                 <div style='padding: 30px;'>
                     <p style='font-size: 16px; margin-top: 0;'>Salutare, <strong>{userName}</strong>!</p>
-                    <p style='font-size: 15px; line-height: 1.5;'>Îți mulțumim pentru comanda plasată la <strong>PC Garage</strong>! Am primit comanda ta și este în curs de procesare.</p>
+                    <p style='font-size: 15px; line-height: 1.5;'>Îți mulțumim pentru comanda plasată la <strong>MacLaren's PC Store</strong>! Am primit comanda ta și este în curs de procesare.</p>
                     
                     <div style='background-color: #f8fafc; padding: 15px 20px; border-radius: 6px; border: 1px solid #e2e8f0; margin: 25px 0;'>
                         <p style='margin: 0 0 8px 0; font-size: 15px;'><strong>Număr comandă:</strong> <span style='font-family: monospace; color: #0ea5e9;'>{order.Id}</span></p>
@@ -70,7 +70,7 @@ namespace PcGarage.Api.Services
                     </p>
                 </div>
                 <div style='background-color: #f8fafc; padding: 20px; text-align: center; font-size: 13px; color: #94a3b8; border-top: 1px solid #e2e8f0;'>
-                    &copy; {DateTime.Now.Year} PC Garage. Toate drepturile rezervate.<br>
+                    &copy; {DateTime.Now.Year} MacLaren's PC Store. Toate drepturile rezervate.<br>
                     <span style='font-size: 11px;'>Acesta este un mesaj automat, te rugăm să nu răspunzi.</span>
                 </div>
             </div>";
@@ -92,12 +92,13 @@ namespace PcGarage.Api.Services
                 var client = new SmtpClient(smtpHost, smtpPort)
                 {
                     Credentials = new NetworkCredential(smtpUser, smtpPass),
-                    EnableSsl = true
+                    EnableSsl = true,
+                    Timeout = 5000 // 5 seconds timeout
                 };
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress(fromEmail, "PC Garage"),
+                    From = new MailAddress(fromEmail, "MacLaren's PC Store"),
                     Subject = $"Confirmare comandă #{order.Id.Substring(0, 8)}",
                     Body = body,
                     IsBodyHtml = true

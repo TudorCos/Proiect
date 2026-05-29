@@ -13,6 +13,7 @@ import type {
   CoolingSpecs,
   PSUSpecs,
 } from '@/types';
+import { useAuthStore } from './auth-store';
 
 interface BuildState {
   currentBuild: Build;
@@ -29,10 +30,53 @@ interface BuildState {
   setCase: (product: Product | undefined) => void;
   setCooling: (product: Product | undefined) => void;
   resetBuild: () => void;
-  saveBuild: (name: string) => void;
+  saveBuild: (name: string, userId?: string) => Promise<void>;
   loadBuild: (buildId: string) => void;
-  deleteBuild: (buildId: string) => void;
+  deleteBuild: (buildId: string) => Promise<void>;
+  fetchSavedBuilds: (userId: string) => Promise<void>;
 }
+
+const mapFrontendToBackendBuild = (fb: Build, userId: string) => {
+  return {
+    id: fb.id,
+    userId: userId,
+    name: fb.name,
+    cpuId: fb.cpu?.id || null,
+    gpuId: fb.gpu?.id || null,
+    motherboardId: fb.motherboard?.id || null,
+    ramId: fb.ram?.id || null,
+    psuId: fb.psu?.id || null,
+    caseId: fb.case?.id || null,
+    coolingId: fb.cooling?.id || null,
+    totalPrice: fb.totalPrice,
+    isCompatible: fb.isCompatible,
+    compatibilityIssuesJson: JSON.stringify(fb.compatibilityIssues),
+    createdAt: fb.createdAt || new Date().toISOString(),
+    savedAt: fb.savedAt || new Date().toISOString(),
+    storages: fb.storage ? fb.storage.map((p: any) => ({ productId: p.id })) : []
+  };
+};
+
+const mapBackendToFrontendBuild = (bb: any): Build => {
+  return {
+    id: bb.id,
+    userId: bb.userId,
+    name: bb.name,
+    cpu: bb.cpu || undefined,
+    gpu: bb.gpu || undefined,
+    motherboard: bb.motherboard || undefined,
+    ram: bb.ram || undefined,
+    psu: bb.psu || undefined,
+    case: bb.case || undefined,
+    cooling: bb.cooling || undefined,
+    storage: bb.storages ? bb.storages.map((s: any) => s.product).filter(Boolean) : [],
+    totalPrice: Number(bb.totalPrice),
+    isCompatible: bb.isCompatible,
+    compatibilityIssues: bb.compatibilityIssuesJson ? JSON.parse(bb.compatibilityIssuesJson) : [],
+    createdAt: bb.createdAt,
+    savedAt: bb.savedAt
+  };
+};
 
 const createEmptyBuild = (): Build => ({
   id: crypto.randomUUID(),
@@ -277,15 +321,45 @@ export const useBuildStore = create<BuildState>()(
     set({ currentBuild: createEmptyBuild() });
   },
 
-  saveBuild: (name) => {
+  saveBuild: async (name, userId) => {
+    const activeUserId = userId || useAuthStore.getState().user?.id;
     const build = get().currentBuild;
+    
     const savedBuild: Build = {
       ...build,
       name,
+      userId: activeUserId || '',
       savedAt: new Date().toISOString(),
     };
+
+    if (activeUserId) {
+      try {
+        const backendPayload = mapFrontendToBackendBuild(savedBuild, activeUserId);
+        const res = await fetch('http://localhost:5216/api/Builds', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(backendPayload),
+        });
+        
+        if (res.ok) {
+          const savedFromDb = await res.json();
+          const mappedFromDb = mapBackendToFrontendBuild(savedFromDb);
+          set((state) => ({
+            savedBuilds: [mappedFromDb, ...state.savedBuilds.filter(b => b.id !== mappedFromDb.id)],
+            currentBuild: createEmptyBuild(),
+          }));
+          return;
+        } else {
+          console.error('Failed to save build to DB', await res.text());
+        }
+      } catch (err) {
+        console.error('Error saving build to database:', err);
+      }
+    }
+
+    // Fallback or guest user local save
     set((state) => ({
-      savedBuilds: [...state.savedBuilds, savedBuild],
+      savedBuilds: [savedBuild, ...state.savedBuilds],
       currentBuild: createEmptyBuild(),
     }));
   },
@@ -297,11 +371,40 @@ export const useBuildStore = create<BuildState>()(
     }
   },
 
-    deleteBuild: (buildId) => {
-      set((state) => ({
-        savedBuilds: state.savedBuilds.filter((b) => b.id !== buildId),
-      }));
-    },
+  deleteBuild: async (buildId) => {
+    const activeUserId = useAuthStore.getState().user?.id;
+    const buildToDelete = get().savedBuilds.find((b) => b.id === buildId);
+
+    if (activeUserId && buildToDelete && buildToDelete.userId === activeUserId) {
+      try {
+        const res = await fetch(`http://localhost:5216/api/Builds/${buildId}`, {
+          method: 'DELETE',
+        });
+        if (!res.ok) {
+          console.error('Failed to delete build from DB', await res.text());
+        }
+      } catch (err) {
+        console.error('Error deleting build from database:', err);
+      }
+    }
+
+    set((state) => ({
+      savedBuilds: state.savedBuilds.filter((b) => b.id !== buildId),
+    }));
+  },
+
+  fetchSavedBuilds: async (userId) => {
+    try {
+      const res = await fetch(`http://localhost:5216/api/Builds?userId=${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        const mappedBuilds = data.map(mapBackendToFrontendBuild);
+        set({ savedBuilds: mappedBuilds });
+      }
+    } catch (err) {
+      console.error('Failed to fetch saved builds:', err);
+    }
+  },
   }),
   {
     name: 'pc-builder-storage', // name of the item in the storage (must be unique)

@@ -8,8 +8,11 @@ export function Footer() {
         <div className="flex flex-col md:flex-row justify-between gap-12">
           {/* Brand */}
           <div className="max-w-xs">
-            <div className="flex items-center mb-4">
-              <img src={logoUrl} alt="PC Garage" className="h-16 w-auto" />
+            <div className="flex items-center gap-2.5 mb-4">
+              <img src={logoUrl} alt="MacLaren's PC Store" className="h-16 w-auto" />
+              <span className="font-bold text-base text-zinc-100 tracking-tight">
+                MacLaren's <span className="text-rose-500">PC Store</span>
+              </span>
             </div>
             <p className="text-xs text-zinc-500 leading-relaxed">
               Magazin online de componente PC. Configurator inteligent cu verificare de compatibilitate.
