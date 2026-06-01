@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PcGarage.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5e61893065754e717e3da535efb39841a0fc2d21")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1b8c9aa54e5d6076bd2d03070a488a41f4a97ee2")]
 [assembly: System.Reflection.AssemblyProductAttribute("PcGarage.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PcGarage.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
