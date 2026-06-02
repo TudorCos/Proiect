@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import type { Product } from '@/types';
-import { CATEGORY_ICONS } from '@/lib/constants';
+import { getCategoryIcon } from '@/lib/constants';
 
 import { RatingStars } from '@/components/ui/rating-stars';
 
@@ -28,7 +28,7 @@ export function ProductCard({ product, isAdded = false, onAddToCart, hideAddButt
             />
           ) : (
             <span className="text-4xl opacity-30 group-hover:opacity-50 transition-opacity">
-              {CATEGORY_ICONS[product.category] || '📦'}
+              {getCategoryIcon(product.category)}
             </span>
           )}
           {product.stock <= 5 && product.stock > 0 && (

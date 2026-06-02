@@ -73,22 +73,18 @@ namespace PcGarage.Api.Controllers
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            // Fetch user to send confirmation email
+            // Send confirmation email
             var user = await _context.Users.FindAsync(order.UserId);
             if (user != null)
             {
-                // Send email in the background to prevent SMTP network issues from blocking checkout
-                _ = Task.Run(async () =>
+                try
                 {
-                    try
-                    {
-                        await _emailService.SendOrderConfirmationEmailAsync(user.Email, user.Name, order);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"[EMAIL BACKGROUND ERROR] Failed to send email: {ex.Message}");
-                    }
-                });
+                    await _emailService.SendOrderConfirmationEmailAsync(user.Email, user.Name, order);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[EMAIL ERROR] Failed to send email: {ex.Message}");
+                }
             }
 
             return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);

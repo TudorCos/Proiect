@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import type { Product, ProductCategory } from '@/types';
 
-import { CATEGORY_LABELS } from '@/lib/constants';
+import { CATEGORY_LABELS, getCategoryLabel } from '@/lib/constants';
 
 export function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -19,7 +19,7 @@ export function AdminProductsPage() {
 
   const [formName, setFormName] = useState('');
   const [formBrand, setFormBrand] = useState('');
-  const [formCategory, setFormCategory] = useState<ProductCategory>('CPU');
+  const [formCategory, setFormCategory] = useState<string>('CPU');
   const [formPrice, setFormPrice] = useState('');
   const [formStock, setFormStock] = useState('');
   const [formDescription, setFormDescription] = useState('');
@@ -169,11 +169,21 @@ export function AdminProductsPage() {
             </div>
             <div>
               <Label className="text-[10px] text-zinc-500 uppercase">Categorie</Label>
-              <select value={formCategory} onChange={(e) => setFormCategory(e.target.value as ProductCategory)} className="mt-1 w-full h-8 bg-zinc-800 border border-zinc-700 rounded text-xs text-zinc-300 px-2">
+              <input
+                list="category-suggestions"
+                value={formCategory}
+                onChange={(e) => setFormCategory(e.target.value)}
+                className="mt-1 w-full h-8 bg-zinc-800 border border-zinc-700 rounded text-xs text-zinc-300 px-2 outline-none focus:ring-1 focus:ring-sky-400/30"
+                placeholder="Scrie sau alege o categorie..."
+              />
+              <datalist id="category-suggestions">
                 {Object.entries(CATEGORY_LABELS).map(([val, label]) => (
                   <option key={val} value={val}>{label}</option>
                 ))}
-              </select>
+                {categories.filter(c => !CATEGORY_LABELS[c]).map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </datalist>
             </div>
             <div>
               <Label className="text-[10px] text-zinc-500 uppercase">Preț (RON)</Label>
@@ -221,7 +231,7 @@ export function AdminProductsPage() {
         >
           <option value="">Toate categoriile</option>
           {categories.map((cat) => (
-            <option key={cat} value={cat}>{CATEGORY_LABELS[cat]}</option>
+            <option key={cat} value={cat}>{getCategoryLabel(cat)}</option>
           ))}
         </select>
       </div>

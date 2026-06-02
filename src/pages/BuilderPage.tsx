@@ -67,6 +67,11 @@ export function BuilderPage() {
     fetchProducts();
   }, []);
 
+  // Reset build state when page loads so no products are pre-selected
+  useEffect(() => {
+    resetBuild();
+  }, [resetBuild]);
+
   const slots: SlotConfig[] = [
     { key: 'cpu', label: 'Procesor', category: 'CPU', icon: '🔲', setter: setCPU },
     { key: 'motherboard', label: 'Placă de bază', category: 'Motherboard', icon: '🖥️', setter: setMotherboard },
@@ -172,7 +177,7 @@ export function BuilderPage() {
                   {/* Slot header */}
                   <div
                     className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-zinc-800/30 transition-colors"
-                    onClick={() => { if (!selected) { setOpenSlot(isOpen ? null : slot.key); setSlotSearch(''); } }}
+                    onClick={() => { setOpenSlot(isOpen ? null : slot.key); setSlotSearch(''); }}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-lg">{slot.icon}</span>
@@ -201,14 +206,12 @@ export function BuilderPage() {
                           </Button>
                         </>
                       )}
-                      {!selected && (
-                        <ChevronDown className={`h-4 w-4 text-zinc-600 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                      )}
+                      <ChevronDown className={`h-4 w-4 text-zinc-600 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                     </div>
                   </div>
 
                   {/* Dropdown selector */}
-                  {isOpen && !selected && (
+                  {isOpen && (
                     <div className="border-t border-zinc-800">
                       <div className="p-3">
                         <Input

@@ -1,23 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, User, Menu, X, Search, ChevronDown, LogOut, Settings } from 'lucide-react';
-import logoUrl from '@/assets/logo.png';
+import logoUrl from '@/assets/logo.webp';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useCartStore, useAuthStore } from '@/store';
-import { useState } from 'react';
-import type { ProductCategory } from '@/types';
-
-const categories: { label: string; value: ProductCategory }[] = [
-  { label: 'Procesoare', value: 'CPU' },
-  { label: 'Plăci video', value: 'GPU' },
-  { label: 'Memorii RAM', value: 'RAM' },
-  { label: 'Plăci de bază', value: 'Motherboard' },
-  { label: 'Surse', value: 'PSU' },
-  { label: 'Stocare', value: 'Storage' },
-  { label: 'Carcase', value: 'Case' },
-  { label: 'Coolere', value: 'Cooling' },
-];
+import { useState, useEffect } from 'react';
+import { getCategoryLabel } from '@/lib/constants';
 
 export function Navbar() {
   const totalItems = useCartStore((s) => s.totalItems());
@@ -28,6 +17,23 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showCategories, setShowCategories] = useState(false);
+  const [categories, setCategories] = useState<{ label: string; value: string }[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch('http://localhost:5216/api/Products');
+        if (res.ok) {
+          const products = await res.json();
+          const uniqueCats = [...new Set(products.map((p: any) => p.category))].sort() as string[];
+          setCategories(uniqueCats.map(cat => ({ value: cat, label: getCategoryLabel(cat) })));
+        }
+      } catch (err) {
+        console.error('Error fetching categories for navbar:', err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

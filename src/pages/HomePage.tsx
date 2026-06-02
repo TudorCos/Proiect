@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { Cpu, ArrowRight, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import type { Product, ProductCategory } from '@/types';
-import { CATEGORY_ICONS, CATEGORY_LABELS } from '@/lib/constants';
+import type { Product } from '@/types';
+import { getCategoryIcon, getCategoryLabel } from '@/lib/constants';
 import { ProductCard } from '@/components/product/ProductCard';
 
 export function HomePage() {
@@ -35,7 +35,8 @@ export function HomePage() {
       return b.reviewCount - a.reviewCount;
     })
     .slice(0, 5);
-  const mainCategories: ProductCategory[] = ['CPU', 'GPU', 'RAM', 'Motherboard', 'PSU', 'Storage', 'Case', 'Cooling'];
+  // Derive categories dynamically from products in the database
+  const allCategories = [...new Set(products.map((p) => p.category))].sort();
 
   if (loading) {
     return (
@@ -94,18 +95,17 @@ export function HomePage() {
               Vezi toate →
             </Link>
           </div>
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
-            {mainCategories.map((cat) => {
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            {allCategories.map((cat) => {
               const count = products.filter((p) => p.category === cat).length;
               return (
                 <Link
                   key={cat}
                   to={`/products?category=${cat}`}
-                  className="group rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 p-3 text-center transition-all hover:bg-zinc-800/50"
+                  className="group relative overflow-hidden rounded-xl bg-zinc-900 border border-zinc-800 hover:border-sky-500/50 hover:bg-zinc-800/80 p-4 flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_-10px_rgba(56,189,248,0.15)]"
                 >
-                  <span className="text-2xl block mb-1">{CATEGORY_ICONS[cat]}</span>
-                  <p className="text-xs font-medium text-zinc-300 group-hover:text-zinc-100">{CATEGORY_LABELS[cat]}</p>
-                  <p className="text-[10px] text-zinc-600">{count} prod.</p>
+                  <p className="text-sm font-semibold text-zinc-300 group-hover:text-sky-400 transition-colors mb-1.5 text-center">{getCategoryLabel(cat)}</p>
+                  <span className="text-[10px] uppercase tracking-wider font-medium text-zinc-500 bg-zinc-950 px-2.5 py-0.5 rounded-full border border-zinc-800/50 group-hover:border-sky-500/20 transition-colors">{count} produse</span>
                 </Link>
               );
             })}

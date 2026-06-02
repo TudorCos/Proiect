@@ -52,9 +52,9 @@ export function ClientLayout() {
       {loadingScreen && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-zinc-950/95 backdrop-blur-sm transition-opacity duration-300">
           <img
-            src="/logo.png"
+            src="/logo.webp"
             alt="MacLaren's Logo"
-            className="h-16 w-auto animate-logo-pulse"
+            className="h-64 md:h-80 lg:h-96 w-auto animate-logo-pulse"
           />
         </div>
       )}

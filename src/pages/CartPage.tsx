@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCartStore, useAuthStore } from '@/store';
-import { CATEGORY_ICONS } from '@/lib/constants';
+import { getCategoryIcon } from '@/lib/constants';
 
 export function CartPage() {
   const items = useCartStore((s) => s.items);
@@ -193,7 +193,7 @@ export function CartPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <span className="text-xl opacity-50">{CATEGORY_ICONS[item.product.category] || '📦'}</span>
+                      <span className="text-xl opacity-50">{getCategoryIcon(item.product.category)}</span>
                     )}
                   </div>
                   <div className="min-w-0">

@@ -3,7 +3,7 @@ import { ShoppingCart, ArrowLeft, Star, Package, CheckCircle, MessageSquare } fr
 import { Button } from '@/components/ui/button';
 import { useCartStore, useAuthStore } from '@/store';
 import { useState, useEffect } from 'react';
-import { CATEGORY_ICONS } from '@/lib/constants';
+import { getCategoryIcon } from '@/lib/constants';
 import type { Product } from '@/types';
 import { RatingStars } from '@/components/ui/rating-stars';
 
@@ -160,7 +160,7 @@ export function ProductDetailPage() {
                 className="w-full h-full object-cover max-h-[450px]"
               />
             ) : (
-              <span className="text-8xl opacity-20">{CATEGORY_ICONS[product.category] || '📦'}</span>
+              <span className="text-8xl opacity-20">{getCategoryIcon(product.category)}</span>
             )}
           </div>
 

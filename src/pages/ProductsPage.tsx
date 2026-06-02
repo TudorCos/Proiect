@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCartStore } from '@/store';
 import type { Product, ProductCategory, SortOption } from '@/types';
-import { CATEGORY_ICONS, CATEGORY_LABELS } from '@/lib/constants';
+import { getCategoryIcon, getCategoryLabel } from '@/lib/constants';
 import { ProductCard } from '@/components/product/ProductCard';
 
 const sortOptions: { value: SortOption; label: string }[] = [
@@ -271,7 +271,7 @@ export function ProductsPage() {
                           : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'
                       }`}
                     >
-                      <span>{CATEGORY_ICONS[cat]} {CATEGORY_LABELS[cat]}</span>
+                      <span>{getCategoryLabel(cat)}</span>
                       <span className="text-[10px] text-zinc-600">{count}</span>
                     </button>
                   );
@@ -336,7 +336,7 @@ export function ProductsPage() {
               <div className="flex flex-wrap gap-1.5 mb-3">
                 {selectedCategory && (
                   <Badge className="bg-sky-400/10 text-sky-400 border-sky-400/20 text-[10px] gap-1 cursor-pointer hover:bg-sky-400/20" onClick={() => handleCategoryClick(null)}>
-                    {CATEGORY_LABELS[selectedCategory]} <X className="h-2.5 w-2.5" />
+                    {getCategoryLabel(selectedCategory)} <X className="h-2.5 w-2.5" />
                   </Badge>
                 )}
                 {selectedBrands.map((b) => (

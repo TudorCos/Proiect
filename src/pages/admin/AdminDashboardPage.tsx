@@ -53,7 +53,7 @@ export function AdminDashboardPage() {
     },
     {
       title: 'Utilizatori',
-      value: users.length.toString(),
+      value: users.filter((u) => u.role === 'customer').length.toString(),
       icon: Users,
       delta: '',
       deltaType: 'up' as const,

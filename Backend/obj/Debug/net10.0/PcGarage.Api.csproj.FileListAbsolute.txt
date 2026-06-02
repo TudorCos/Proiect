@@ -157,3 +157,13 @@ E:\Facultate\An 3\II Sem II\Proiect\Backend\obj\Debug\net10.0\PcGarage.Api.pdb
 E:\Facultate\An 3\II Sem II\Proiect\Backend\obj\Debug\net10.0\PcGarage.Api.genruntimeconfig.cache
 E:\Facultate\An 3\II Sem II\Proiect\Backend\obj\Debug\net10.0\ref\PcGarage.Api.dll
 E:\Facultate\An 3\II Sem II\Proiect\backend\obj\Debug\net10.0\PcGarage.Api.sourcelink.json
+E:\Facultate\An 3\II Sem II\Proiect\Backend\bin\Debug\net10.0\BCrypt-Net-Next.dll
+E:\Facultate\An 3\II Sem II\Proiect\Backend\bin\Debug\net10.0\Serilog.dll
+E:\Facultate\An 3\II Sem II\Proiect\Backend\bin\Debug\net10.0\Serilog.AspNetCore.dll
+E:\Facultate\An 3\II Sem II\Proiect\Backend\bin\Debug\net10.0\Serilog.Extensions.Hosting.dll
+E:\Facultate\An 3\II Sem II\Proiect\Backend\bin\Debug\net10.0\Serilog.Extensions.Logging.dll
+E:\Facultate\An 3\II Sem II\Proiect\Backend\bin\Debug\net10.0\Serilog.Formatting.Compact.dll
+E:\Facultate\An 3\II Sem II\Proiect\Backend\bin\Debug\net10.0\Serilog.Settings.Configuration.dll
+E:\Facultate\An 3\II Sem II\Proiect\Backend\bin\Debug\net10.0\Serilog.Sinks.Console.dll
+E:\Facultate\An 3\II Sem II\Proiect\Backend\bin\Debug\net10.0\Serilog.Sinks.Debug.dll
+E:\Facultate\An 3\II Sem II\Proiect\Backend\bin\Debug\net10.0\Serilog.Sinks.File.dll

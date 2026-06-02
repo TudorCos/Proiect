@@ -7,7 +7,7 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 import { useAuthStore } from '@/store';
-import logoUrl from '@/assets/logo.png';
+import logoUrl from '@/assets/logo.webp';
 
 const adminLinks = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },

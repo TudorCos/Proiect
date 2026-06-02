@@ -1,19 +1,17 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { ShieldCheck, UserRound } from 'lucide-react';
-import logoUrl from '@/assets/logo.png';
+import logoUrl from '@/assets/logo.webp';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthStore } from '@/store';
-import type { UserRole } from '@/types';
 
 export function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('customer');
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -32,8 +30,13 @@ export function RegisterPage() {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Parola trebuie să aibă cel puțin 6 caractere.');
+    if (password.length < 8) {
+      setError('Parola trebuie să aibă cel puțin 8 caractere.');
+      return;
+    }
+
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+      setError('Parola trebuie să conțină cel puțin o literă mare, una mică și o cifră.');
       return;
     }
 
@@ -47,13 +50,18 @@ export function RegisterPage() {
           name,
           email,
           password,
-          role,
+          role: 'customer',
         }),
       });
 
       if (!response.ok) {
-        const errBody = await response.text();
-        throw new Error(errBody || 'Eroare la crearea contului în baza de date.');
+        const errText = await response.text();
+        let errMsg = errText;
+        try {
+          const errObj = JSON.parse(errText);
+          errMsg = errObj.message || errObj.error || errText;
+        } catch {}
+        throw new Error(errMsg || 'Eroare la crearea contului în baza de date.');
       }
 
       const newUser = await response.json();
@@ -62,12 +70,8 @@ export function RegisterPage() {
       // Setăm utilizatorul în store-ul local
       setUser(newUser);
 
-      // Navigăm utilizatorul – adminii merg la dashboard
-      if (newUser.role === 'admin') {
-        navigate('/admin', { replace: true });
-      } else {
-        navigate(from, { replace: true });
-      }
+      // Navigăm utilizatorul
+      navigate(from, { replace: true });
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Eroare de conexiune la baza de date. Asigură-te că API-ul C# rulează.');
@@ -92,38 +96,6 @@ export function RegisterPage() {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-3">
-            {/* Role selector */}
-            <div>
-              <Label className="text-xs text-zinc-400 mb-2 block">Tip Cont</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  id="role-customer-btn"
-                  onClick={() => setRole('customer')}
-                  className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium transition-all ${
-                    role === 'customer'
-                      ? 'border-sky-400/50 bg-sky-400/10 text-sky-400 ring-1 ring-sky-400/20'
-                      : 'border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-600 hover:text-zinc-300'
-                  }`}
-                >
-                  <UserRound className="h-4 w-4" />
-                  Client
-                </button>
-                <button
-                  type="button"
-                  id="role-admin-btn"
-                  onClick={() => setRole('admin')}
-                  className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium transition-all ${
-                    role === 'admin'
-                      ? 'border-rose-400/50 bg-rose-400/10 text-rose-400 ring-1 ring-rose-400/20'
-                      : 'border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-600 hover:text-zinc-300'
-                  }`}
-                >
-                  <ShieldCheck className="h-4 w-4" />
-                  Admin
-                </button>
-              </div>
-            </div>
 
             <div>
               <Label htmlFor="name" className="text-xs text-zinc-400">Nume Complet</Label>
