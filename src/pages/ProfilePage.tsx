@@ -75,6 +75,12 @@ export function ProfilePage() {
     setSaveMsg('');
 
     try {
+      if (editPostalCode && !/^\d{6}$/.test(editPostalCode)) {
+        setSaveMsg('Codul poștal nu este valid (exact 6 cifre).');
+        setSaving(false);
+        return;
+      }
+
       const updatedUser = {
         ...user,
         name: editName,

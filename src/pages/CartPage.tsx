@@ -39,8 +39,13 @@ export function CartPage() {
       return;
     }
 
-    if (!street || !city || !county) {
-      setError('Completează adresa de livrare.');
+    if (!street || !city || !county || !postalCode) {
+      setError('Completează toate adresa de livrare (stradă, oraș, județ, cod poștal).');
+      return;
+    }
+
+    if (!/^\d{6}$/.test(postalCode)) {
+      setError('Codul poștal introdus nu este valid (trebuie să conțină exact 6 cifre).');
       return;
     }
 
